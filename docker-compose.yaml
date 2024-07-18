@@ -1,0 +1,26 @@
+version: "3.9"
+
+networks:
+  monitoring:
+
+services:
+  dummy-vector-agent:
+    image: timberio/vector:0.39.0-debian
+    container_name: dummy-vector-agent
+    ports:
+      - "6000:6000"
+    volumes:
+      - "../dummy-vector-agent/:/etc/vector/"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - monitoring
+
+  dummy-vector-aggregator:
+    image: timberio/vector:0.39.0-debian
+    container_name: dummy-vector-aggregator
+    ports:
+      - "6010:6010" # Listening for logs
+    volumes:
+      - "./:/etc/vector/"
+    networks:
+      - monitoring

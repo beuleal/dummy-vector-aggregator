@@ -1,0 +1,23 @@
+sources:
+  dummy-vector-agent:
+    type: vector
+    address: 0.0.0.0:6010
+    version: "2"
+# sinks:
+#   dummy-loki:
+#     inputs:
+#       - "dummy-vector-agent"
+#     type: loki
+#     endpoint: http://192.168.0.204:3100/loki/api/v1/push
+#     encoding:
+#       codec: json
+#     labels:
+#       app: dummy-python-api
+
+sinks:
+  stdout:
+    inputs:
+      - "dummy-vector-agent"
+    type: "console"
+    encoding:
+      codec: "text"
