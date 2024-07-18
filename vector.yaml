@@ -3,21 +3,49 @@ sources:
     type: vector
     address: 0.0.0.0:6010
     version: "2"
-# sinks:
-#   dummy-loki:
-#     inputs:
-#       - "dummy-vector-agent"
-#     type: loki
-#     endpoint: http://192.168.0.204:3100/loki/api/v1/push
-#     encoding:
-#       codec: json
-#     labels:
-#       app: dummy-python-api
+
+# timestamp is reserved word.
+# Validate it using `vector validate`
+transforms:
+  dummy-vector-agent-transformed:
+    type: remap
+    inputs:
+      - dummy-vector-agent
+    source: |
+      .message = parse_json!(.message)
+      container_name = .container_name
+      image = .image
+      method = .message.method
+      endpoint = .message.request
+      request_received_at = .message.request_received_at
+      response_code = .message.response_status
+      source_type = .source_type
+      del(.)
+      .container_name = container_name
+      .image = image
+      .method = method
+      .endpoint = endpoint
+      .request_received_at = request_received_at
+      .response_code = response_code
+      .source_type = source_type
 
 sinks:
-  stdout:
+  dummy-loki:
     inputs:
-      - "dummy-vector-agent"
-    type: "console"
+      - dummy-vector-agent-transformed
+    type: loki
+    endpoint: http://dummy-loki:3100
     encoding:
-      codec: "text"
+      codec: json
+    labels:
+      app: dummy-python-api
+      method: "{{ method }}"
+      response_code: "{{ response_code }}"
+
+  # In case you want to confirm the aggregator is receiving and sending logs, just uncomment this sink!
+  # stdout:
+  #   inputs:
+  #     - "dummy-vector-agent"
+  #   type: "console"
+  #   encoding:
+  #     codec: "text"

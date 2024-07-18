@@ -2,6 +2,7 @@ version: "3.9"
 
 networks:
   monitoring:
+    name: monitoring
 
 services:
   dummy-vector-agent:
